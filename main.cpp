@@ -760,10 +760,10 @@ bool secondPlayerHit(string position) /// second player trying to hit the ship i
 
 bool firstPlayerHit(string position) /// same as secondPlayerHit, but first player is hitting
 {
-    int y = position[1] - 'A' + 1;
+    int y = position[0] - 'A' + 1;
     int x;
-    if (position[5] == '0') x = 10;
-    else x = position[4] - '0';
+    if (position[2] == '0') x = 10;
+    else x = position[1] - '0';
     if (secondPlayerMap[x][y] == 'x')
     {
         secondPlayerField[x * 2][1 + y * 4] = 'x';
@@ -827,7 +827,7 @@ void firstPlayerBattleMove() /// first player battle move
     {
         if (secondPlayerShipsRemained == 0) // if zero ships remained after hit
         {
-            cout << "[WIN] Congratulations! You just won this game!";
+            cout << "\n[WIN] Congratulations! You just won this game!";
             return;
         }
         cout << "\n[ONE MORE MOVE FOR YOU]"; // if success hit one more turn for player
@@ -864,8 +864,8 @@ void secondPlayerBattleMove() /// second player battle move
     {
         if (firstPlayerShipsRemained == 0)
         {
-            cout << "[WIN] Congratulations! You just won this game!";
-            exit(0);
+            cout << "\n[WIN] Congratulations! You just won this game!";
+            return;
         }
         cout << "\n[ONE MORE TURN FOR YOU]";
         Sleep(3000);
@@ -895,6 +895,7 @@ void theGame()
     setConsoleSize();
     while (true)
     {
+        system("cls");
         fillField();
         setFirstEmptyField();
         setSecondEmptyField();
@@ -918,7 +919,7 @@ void theGame()
         int result = theBattle();
         while (true)
         {
-            cout << "\n[NEW GAME] Do you want to play one more time?[Y/N]";
+            cout << "\n[NEW GAME] Do you want to play one more time?[Y/N]: ";
             string answer;
             cin >> answer;
             if (answer == "Y") break;
