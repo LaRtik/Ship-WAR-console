@@ -811,7 +811,7 @@ void firstPlayerBattleMove() /// first player battle move
     PrintFields();
     cout << "\n\n\n" << firstPlayerCaption << endl;
     string position;
-    cout << "\nChoose the position of your hit [LETTERnumber]:";
+    cout << "\nChoose the position of your hit [LETTERnumber]: ";
     cin >> position;
     if (!checkPosition(position))
     {
@@ -848,7 +848,7 @@ void secondPlayerBattleMove() /// second player battle move
     PrintFields();
     cout << "\n\n\n" << secondPlayerCaption << endl;
     string position;
-    cout << "\nChoose the position of your hit [LETTERnumber]:";
+    cout << "\nChoose the position of your hit [LETTERnumber]: ";
     cin >> position;
     if (!checkPosition(position))
     {
@@ -902,16 +902,16 @@ void theGame()
         firstPlayerShipsPlaced = false;
         secondPlayerShipsPlaced = false;
         PrintFields();
-        numberOfShips[1] = 0;
-        numberOfShips[2] = 0;
-        numberOfShips[3] = 0;
+        numberOfShips[1] = 4;
+        numberOfShips[2] = 3;
+        numberOfShips[3] = 2;
         numberOfShips[4] = 1;
         setPrintFirstPlayerShips();
         firstPlayerShipsPlaced = true;
         turnBattleModeFirstPlayer();
-        numberOfShips[1] = 0;
-        numberOfShips[2] = 0;
-        numberOfShips[3] = 0;
+        numberOfShips[1] = 4;
+        numberOfShips[2] = 3;
+        numberOfShips[3] = 2;
         numberOfShips[4] = 1;
         setPrintSecondPlayerShips();
         secondPlayerShipsPlaced = true;
