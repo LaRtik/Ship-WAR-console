@@ -6,12 +6,18 @@ using namespace std;
 
 string firstPlayerField[100];
 string secondPlayerField[100];
+string firstPlayerBattleField[100];
+string secondPlayerBattleField[100];
 string firstPlayerCaption = "                P L A Y E R  1              ";
 string secondPlayerCaption = "                P L A Y E R  2              ";
 string aLotOfSpaces = "";
 char firstPlayerMap[11][11];
 char secondPlayerMap[11][11];
 int numberOfShips[5];
+int firstPlayerShipsRemained = 10;
+int secondPlayerShipsRemained = 10;
+bool firstPlayerShipsPlaced = false;
+bool secondPlayerShipsPlaced = false;
 
 
 void fillField()
@@ -45,6 +51,8 @@ void setSecondEmptyField()
     for (int i = 0; i < 21; i++)
     {
         secondPlayerField[i] = firstPlayerField[i];
+        firstPlayerBattleField[i] = firstPlayerField[i];
+        secondPlayerBattleField[i] = firstPlayerBattleField[i];
      //   cout << secondPlayerField[i] << endl;
     }
 
@@ -78,7 +86,7 @@ bool checkPosition(string position)
     if (position[0] != '<' || position[3] != '<') return false;
     if (position[1] < 'A' && position[1] > 'J') return false;
     if (position[2] != '>') return false;
-    if (position[4] < '1' && position[4] > '9') return false;
+    if (position[4] < '1' || position[4] > '9') return false;
     if (position[5] == '0' && position[4] != '1') return false;
     if (position[6] == '>' && position[5] != '0') return false;
     if (position[5] != '>' && position[4] != '1') return false;
@@ -256,9 +264,9 @@ void updateFields()
     {
         for (int j = 1; j <= 10; j++)
         {
-            firstPlayerField[i * 2][1 + j * 4] = firstPlayerMap[i][j];
+            if (!firstPlayerShipsPlaced) firstPlayerField[i * 2][1 + j * 4] = firstPlayerMap[i][j];
           //  cout << firstPlayerMap[i][j];
-            secondPlayerField[i * 2][1 + j * 4] = secondPlayerMap[i][j];
+            if (!secondPlayerShipsPlaced) secondPlayerField[i * 2][1 + j * 4] = secondPlayerMap[i][j];
         }
        // cout << endl;
     }
@@ -343,7 +351,8 @@ void setPrintFirstPlayerShips()
             updateFields();
             PrintFields();
             cout << "\n\n\n";
-            cout << "Player 1. Place your " << i << "-deck ship. " << i << "-deck ships remained: " << j << endl;
+            cout << firstPlayerCaption << endl;
+            cout << "Place your " << i << "-deck ship. " << i << "-deck ships remained: " << j << endl;
             cout << "Choose the direction of your ship [V/H]: " << direction;
             cout << "\nChoose the position of your ship [<letter><number>]: " << position;
             cout << "\nPosition selected! Accept position? (changes displayed on your field {.}) [Y/N]: ";
@@ -430,7 +439,7 @@ void setPrintSecondPlayerShips()
                 Sleep(3000);
                 system("cls");
                 PrintFields();
-                setPrintFirstPlayerShips();
+                setPrintSecondPlayerShips();
                 return;
             }
 
@@ -438,7 +447,8 @@ void setPrintSecondPlayerShips()
             updateFields();
             PrintFields();
             cout << "\n\n\n";
-            cout << "Player 1. Place your " << i << "-deck ship. " << i << "-deck ships remained: " << j << endl;
+            cout << secondPlayerCaption << endl;
+            cout << "Place your " << i << "-deck ship. " << i << "-deck ships remained: " << j << endl;
             cout << "Choose the direction of your ship [V/H]: " << direction;
             cout << "\nChoose the position of your ship [<letter><number>]: " << position;
             cout << "\nPosition selected! Accept position? (changes displayed on your field {.}) [Y/N]: ";
@@ -451,7 +461,7 @@ void setPrintSecondPlayerShips()
                 system("cls");
                 removeDotsFromField();
                 PrintFields();
-                setPrintFirstPlayerShips();
+                setPrintSecondPlayerShips();
                 return;
             }
 
@@ -462,7 +472,7 @@ void setPrintSecondPlayerShips()
                 system("cls");
                 removeDotsFromField();
                 PrintFields();
-                setPrintFirstPlayerShips();
+                setPrintSecondPlayerShips();
                 return;
             }
             else
@@ -473,13 +483,370 @@ void setPrintSecondPlayerShips()
                 replaceDotsInFields();
                 PrintFields();
                 numberOfShips[i]--;
-                setPrintFirstPlayerShips();
+                setPrintSecondPlayerShips();
                 return;
             }
         }
     }
 }
 
+void turnBattleModeFirstPlayer()
+{
+    for (int i = 0; i < 21; i++)
+    {
+        firstPlayerField[i] = firstPlayerBattleField[i];
+    }
+    cout << "\n[WARNING] Now it's time to place the ships of second player. Get ready!";
+    Sleep(3000);
+    system("cls");
+    PrintFields();
+}
+
+void turnBattleModeSecondPlayer()
+{
+    for (int i = 0; i < 21; i++)
+    {
+        secondPlayerField[i] = secondPlayerBattleField[i];
+    }
+    cout << "\n[ATTENTION] Now the battle begins. Good luck & have fun!";
+    Sleep(3000);
+    system("cls");
+    PrintFields();
+}
+
+bool checkFirstPlayerKilledShip(int x, int y)
+{
+    /// Check ship is killed
+    int i = x, j = y;
+    while (firstPlayerMap[i][j] == 'X' || firstPlayerMap[i][j] == 'x')
+    {
+        if (firstPlayerMap[i][j] == 'x') return false;
+        i++;
+    }
+
+    i = x, j = y;
+    while (firstPlayerMap[i][j] == 'X' || firstPlayerMap[i][j] == 'x')
+    {
+        if (firstPlayerMap[i][j] == 'x') return false;
+        i--;
+    }
+
+    i = x, j = y;
+    while (firstPlayerMap[i][j] == 'X' || firstPlayerMap[i][j] == 'x')
+    {
+        if (firstPlayerMap[i][j] == 'x') return false;
+        j--;
+    }
+
+    i = x, j = y;
+    while (firstPlayerMap[i][j] == 'X' || firstPlayerMap[i][j] == 'x')
+    {
+        if (firstPlayerMap[i][j] == 'x') return false;
+        j++;
+    }
+
+
+    /// Paint killed ship
+    while (firstPlayerMap[i][j] == 'X' || firstPlayerMap[i][j] == 'x')
+    {
+        if (firstPlayerMap[i][j] == 'X')
+        {
+            firstPlayerMap[i][j] = 'K';
+            firstPlayerField[i * 2][1 + j * 4] = 'X';
+        }
+        i++;
+    }
+
+    i = x, j = y;
+    while (firstPlayerMap[i][j] == 'X' || firstPlayerMap[i][j] == 'x')
+    {
+        if (firstPlayerMap[i][j] == 'X')
+        {
+            firstPlayerMap[i][j] = 'K';
+            firstPlayerField[i * 2][1 + j * 4] = 'X';
+        }
+        i--;
+    }
+
+    i = x, j = y;
+    while (firstPlayerMap[i][j] == 'X' || firstPlayerMap[i][j] == 'x')
+    {
+        if (firstPlayerMap[i][j] == 'X')
+        {
+            firstPlayerMap[i][j] = 'K';
+            firstPlayerField[i * 2][1 + j * 4] = 'X';
+        }
+        j--;
+    }
+
+    i = x, j = y;
+    while (firstPlayerMap[i][j] == 'X' || firstPlayerMap[i][j] == 'x')
+    {
+        if (firstPlayerMap[i][j] == 'X')
+        {
+            firstPlayerMap[i][j] = 'K';
+            firstPlayerField[i * 2][1 + j * 4] = 'X';
+        }
+        j++;
+    }
+
+    return true;
+}
+
+bool checkSecondPlayerKilledShip(int x, int y)
+{
+    /// Check ship is killed
+    int i = x, j = y;
+    while (secondPlayerMap[i][j] == 'X' || secondPlayerMap[i][j] == 'x')
+    {
+        if (secondPlayerMap[i][j] == 'x') return false;
+        i++;
+    }
+
+    i = x, j = y;
+    while (secondPlayerMap[i][j] == 'X' || secondPlayerMap[i][j] == 'x')
+    {
+        if (secondPlayerMap[i][j] == 'x') return false;
+        i--;
+    }
+
+    i = x, j = y;
+    while (secondPlayerMap[i][j] == 'X' || secondPlayerMap[i][j] == 'x')
+    {
+        if (secondPlayerMap[i][j] == 'x') return false;
+        j--;
+    }
+
+    i = x, j = y;
+    while (secondPlayerMap[i][j] == 'X' || secondPlayerMap[i][j] == 'x')
+    {
+        if (secondPlayerMap[i][j] == 'x') return false;
+        j++;
+    }
+
+
+    /// Paint killed ship
+    while (secondPlayerMap[i][j] == 'X' || secondPlayerMap[i][j] == 'x')
+    {
+        if (secondPlayerMap[i][j] == 'X')
+        {
+            secondPlayerMap[i][j] = 'K';
+            secondPlayerField[i * 2][1 + j * 4] = 'X';
+        }
+        i++;
+    }
+
+    i = x, j = y;
+    while (secondPlayerMap[i][j] == 'X' || secondPlayerMap[i][j] == 'x')
+    {
+        if (secondPlayerMap[i][j] == 'X')
+        {
+            secondPlayerMap[i][j] = 'K';
+            secondPlayerField[i * 2][1 + j * 4] = 'X';
+        }
+        i--;
+    }
+
+    i = x, j = y;
+    while (secondPlayerMap[i][j] == 'X' || secondPlayerMap[i][j] == 'x')
+    {
+        if (secondPlayerMap[i][j] == 'X')
+        {
+            secondPlayerMap[i][j] = 'K';
+            firstPlayerField[i * 2][1 + j * 4] = 'X';
+        }
+        j--;
+    }
+
+    i = x, j = y;
+    while (secondPlayerMap[i][j] == 'X' || secondPlayerMap[i][j] == 'x')
+    {
+        if (secondPlayerMap[i][j] == 'X')
+        {
+            secondPlayerMap[i][j] = 'K';
+            firstPlayerField[i * 2][1 + j * 4] = 'X';
+        }
+        j++;
+    }
+
+    return true;
+}
+
+
+bool secondPlayerHit(string position)
+{
+    int y = position[1] - 'A' + 1;
+    int x;
+    if (position[5] == '0') x = 10;
+    else x = position[4] - '0';
+    if (firstPlayerMap[x][y] == 'x')
+    {
+        firstPlayerField[x * 2][1 + y * 4] = 'x';
+        firstPlayerMap[x][y] = 'X';
+        cout << "\n[HITTED] Successful hit!";
+        if (checkFirstPlayerKilledShip(x, y))
+        {
+            cout << "\n[KILLED] You just killed enemy ship. Good job!";
+            firstPlayerShipsRemained--;
+        }
+        return true;
+    }
+
+    if (firstPlayerMap[x][y] == 'X')
+    {
+        cout << "\n[ERROR] You hit this point before. Try another one.";
+        return true;
+    }
+
+    if (firstPlayerMap[x][y] == 'K')
+    {
+        cout << "\n[ERROR] This ship is already killed. Try another one.";
+        return true;
+    }
+
+    if (firstPlayerMap[x][y] == ' ')
+    {
+        cout << "\n[MISS] Not today! Try again later.";
+        firstPlayerMap[x][y] = '.';
+        firstPlayerField[x * 2][1 + y * 4] = '.';
+        return false;
+    }
+
+    if (firstPlayerMap[x][y] == '.')
+    {
+        cout << "\n[ERROR] You missed here before. Try another position";
+        return true;
+    }
+}
+
+bool firstPlayerHit(string position)
+{
+    int y = position[1] - 'A' + 1;
+    int x;
+    if (position[5] == '0') x = 10;
+    else x = position[4] - '0';
+    if (secondPlayerMap[x][y] == 'x')
+    {
+        secondPlayerField[x * 2][1 + y * 4] = 'x';
+        secondPlayerMap[x][y] = 'X';
+        cout << "\n[HITTED] Successful hit!";
+        if (checkSecondPlayerKilledShip(x, y))
+        {
+            cout << "\n[KILLED] You just killed enemy ship. Good job!";
+            secondPlayerShipsRemained--;
+        }
+        return true;
+    }
+
+    if (secondPlayerMap[x][y] == 'X')
+    {
+        cout << "\n[ERROR] You hit this point before. Try another one.";
+        return true;
+    }
+
+    if (secondPlayerMap[x][y] == 'K')
+    {
+        cout << "\n[ERROR] This ship is already killed. Try another one.";
+        return true;
+    }
+
+    if (secondPlayerMap[x][y] == ' ')
+    {
+        cout << "\n[MISS] Not today! Try again later.";
+        secondPlayerMap[x][y] = '.';
+        secondPlayerField[x * 2][1 + y * 4] = '.';
+        return false;
+    }
+
+    if (secondPlayerMap[x][y] == '.')
+    {
+        cout << "\n[ERROR] You missed here before. Try another position";
+        return true;
+    }
+}
+
+void firstPlayerBattleMove()
+{
+    system("cls");
+    PrintFields();
+    cout << "\n\n\n" << firstPlayerCaption << endl;
+    string position;
+    cout << "\nChoose the position of your hit [<letter><number>]:";
+    cin >> position;
+    if (!checkPosition(position))
+    {
+        cout << "\n[ERROR] Incorrect position. Restarting entering hit information in 3 seconds...";
+        Sleep(3000);
+        system("cls");
+        PrintFields();
+        firstPlayerBattleMove();
+        return;
+    }
+
+    if (firstPlayerHit(position))
+    {
+        if (secondPlayerShipsRemained == 0)
+        {
+            cout << "[WIN] Congratulations! You just won this game!";
+            exit(0);
+        }
+        cout << "\n[ONE MORE MOVE FOR YOU]";
+        Sleep(3000);
+        firstPlayerBattleMove();
+    }
+    else
+    {
+        cout << "\n[CHANGING PLAYER]";
+        Sleep(3000);
+    }
+    return;
+}
+
+void secondPlayerBattleMove()
+{
+    system("cls");
+    PrintFields();
+    cout << "\n\n\n" << secondPlayerCaption << endl;
+    string position;
+    cout << "\nChoose the position of your hit [<letter><number>]:";
+    cin >> position;
+    if (!checkPosition(position))
+    {
+        cout << "\n[ERROR] Incorrect position. Restarting entering hit information in 3 seconds...";
+        Sleep(3000);
+        system("cls");
+        PrintFields();
+        secondPlayerBattleMove();
+        return;
+    }
+
+    if (secondPlayerHit(position))
+    {
+        if (firstPlayerShipsRemained == 0)
+        {
+            cout << "[WIN] Congratulations! You just won this game!";
+            exit(0);
+        }
+        cout << "\n[ONE MORE TURN FOR YOU]";
+        Sleep(3000);
+        secondPlayerBattleMove();
+    }
+    else
+    {
+        cout << "\n[CHANGING PLAYER]";
+        Sleep(3000);
+    }
+    return;
+
+}
+
+void theBattle()
+{
+    firstPlayerBattleMove();
+    secondPlayerBattleMove();
+    if (firstPlayerShipsRemained == 0 || secondPlayerShipsRemained == 0) return;
+    theBattle();
+}
 
 
 
@@ -496,11 +863,17 @@ int main()
     numberOfShips[3] = 2;
     numberOfShips[4] = 1;
     setPrintFirstPlayerShips();
+    firstPlayerShipsPlaced = true;
+    turnBattleModeFirstPlayer();
     numberOfShips[1] = 4;
     numberOfShips[2] = 3;
     numberOfShips[3] = 2;
     numberOfShips[4] = 1;
     setPrintSecondPlayerShips();
+    secondPlayerShipsPlaced = true;
+    turnBattleModeSecondPlayer();
+
+    theBattle();
 
 
 
