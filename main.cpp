@@ -13,8 +13,8 @@ string aLotOfSpaces = "";
 char firstPlayerMap[12][12]; // data of first player map
 char secondPlayerMap[12][12]; // data of second player map
 int numberOfShips[5]; // count of each type of ship (1-deck, 2-deck and e.g.)
-int firstPlayerShipsRemained = 4;
-int secondPlayerShipsRemained = 4;
+int firstPlayerShipsRemained = 10;
+int secondPlayerShipsRemained = 10;
 bool firstPlayerShipsPlaced = false;
 bool secondPlayerShipsPlaced = false;
 
@@ -905,16 +905,16 @@ void theGame()
         firstPlayerShipsPlaced = false;
         secondPlayerShipsPlaced = false;
         PrintFields();
-        numberOfShips[1] = 1;
-        numberOfShips[2] = 1;
-        numberOfShips[3] = 1;
+        numberOfShips[1] = 4;
+        numberOfShips[2] = 3;
+        numberOfShips[3] = 2;
         numberOfShips[4] = 1;
         setPrintFirstPlayerShips();
         firstPlayerShipsPlaced = true;
         turnBattleModeFirstPlayer();
-        numberOfShips[1] = 1;
-        numberOfShips[2] = 1;
-        numberOfShips[3] = 1;
+        numberOfShips[1] = 4;
+        numberOfShips[2] = 3;
+        numberOfShips[3] = 2;
         numberOfShips[4] = 1;
         setPrintSecondPlayerShips();
         secondPlayerShipsPlaced = true;
