@@ -4,23 +4,22 @@
 
 using namespace std;
 
-string firstPlayerField[100];
-string secondPlayerField[100];
-string firstPlayerBattleField[100];
-string secondPlayerBattleField[100];
-string firstPlayerCaption = "                P L A Y E R  1              ";
+string firstPlayerField[100]; // field represented in console for first player
+string secondPlayerField[100]; // field represented in console for second player
+string emptyField[100]; // reserved empty field;
+string firstPlayerCaption = "                P L A Y E R  1              "; // caption for console
 string secondPlayerCaption = "                P L A Y E R  2              ";
 string aLotOfSpaces = "";
-char firstPlayerMap[11][11];
-char secondPlayerMap[11][11];
-int numberOfShips[5];
-int firstPlayerShipsRemained = 10;
-int secondPlayerShipsRemained = 10;
+char firstPlayerMap[11][11]; // data of first player map
+char secondPlayerMap[11][11]; // data of second player map
+int numberOfShips[5]; // count of each type of ship (1-deck, 2-deck and e.g.)
+int firstPlayerShipsRemained = 1;
+int secondPlayerShipsRemained = 1;
 bool firstPlayerShipsPlaced = false;
 bool secondPlayerShipsPlaced = false;
 
 
-void fillField()
+void fillField() /// clear the data map
 {
     for (int i = 0; i<= 11; i++)
     {
@@ -32,7 +31,7 @@ void fillField()
     }
 }
 
-void setFirstEmptyField()
+void setFirstEmptyField() /// make first player field empty (no ships placed)
 {
     firstPlayerField[0] = "   | A | B | C | D | E | F | G | H | I | J |";
     firstPlayerField[1] = "   ----------------------------------------|";
@@ -46,32 +45,30 @@ void setFirstEmptyField()
     firstPlayerField[2] = " 1 " + firstPlayerField[2];
 }
 
-void setSecondEmptyField()
+void setSecondEmptyField() /// make second player field empty (no ships placed)
 {
     for (int i = 0; i < 21; i++)
     {
         secondPlayerField[i] = firstPlayerField[i];
-        firstPlayerBattleField[i] = firstPlayerField[i];
-        secondPlayerBattleField[i] = firstPlayerBattleField[i];
-     //   cout << secondPlayerField[i] << endl;
+        emptyField[i] = firstPlayerField[i];
     }
 
     firstPlayerField[21] = firstPlayerField[1];
     secondPlayerField[21] = firstPlayerField[21];
 }
 
-void setSpacesSize(int spacesSize)
+void setSpacesSize(int spacesSize) /// set the number of spaced between two fields in console
 {
     for (int i = 0; i < spacesSize; i++) aLotOfSpaces += " ";
 }
 
-void setConsoleSize()
+void setConsoleSize() /// set default size of console window
 {
     HWND window_header = GetConsoleWindow();
 	SetWindowPos(window_header, HWND_TOP, 200, 100, 1200, 650, NULL);
 }
 
-void printAddDots()
+void printAddDots() /// add dots around killed ships
 {
     for (int i = 1; i <= 10; i++)
     {
@@ -105,13 +102,13 @@ void printAddDots()
     {
         for (int j = 1; j <= 10; j++)
         {
-            if (firstPlayerMap[i][j] == '.') firstPlayerField[i * 2][1 + j * 4] = '.';
+            if (firstPlayerMap[i][j] == '.') firstPlayerField[i * 2][1 + j * 4] = '.'; // formula [i * 2][1 + j * 4] connects the display field and data map
             if (secondPlayerMap[i][j] == '.') secondPlayerField[i * 2][1 + j * 4] = '.';
         }
     }
 }
 
-void PrintFields()
+void PrintFields() /// print fields in console
 {
 	cout << firstPlayerCaption + aLotOfSpaces + secondPlayerCaption + "\n\n";
     for (int i = 0; i < 22; i++)
@@ -120,20 +117,22 @@ void PrintFields()
     }
 }
 
-bool checkPosition(string position)
+bool checkPosition(string position) /// check the entered position in accordance to format "LETTERnumber"
 {
-    if (position.size() > 7) return false;
-    if (position[0] != '<' || position[3] != '<') return false;
-    if (position[1] < 'A' && position[1] > 'J') return false;
-    if (position[2] != '>') return false;
-    if (position[4] < '1' || position[4] > '9') return false;
-    if (position[5] == '0' && position[4] != '1') return false;
-    if (position[6] == '>' && position[5] != '0') return false;
-    if (position[5] != '>' && position[4] != '1') return false;
+    if (position.size() < 2 || position.size() > 3) return false;
+    if (position[0] < 'A' && position[0] > 'J') return false;
+    if (position.size() == 2)
+    {
+        if (position[1] < '0' || position[1] > '9') return false;
+    }
+    else
+    {
+        if (position[1] != '1' && position[2] != '0') return false;
+    }
     return true;
 }
 
-bool checkPlayerFirstShipPoint(int x, int y)
+bool checkPlayerFirstShipPoint(int x, int y) /// check the position to place the ship (no ships in radius 1) for FIRST PLAYER
 {
     for (int i = x - 1; i <= x + 1; i++)
     {
@@ -145,7 +144,7 @@ bool checkPlayerFirstShipPoint(int x, int y)
     return true;
 }
 
-bool checkPlayerSecondShipPoint(int x, int y)
+bool checkPlayerSecondShipPoint(int x, int y) /// check the position to place the ship (no ships in radius 1) for SECOND PLAYER
 {
     for (int i = x - 1; i <= x + 1; i++)
     {
@@ -158,20 +157,20 @@ bool checkPlayerSecondShipPoint(int x, int y)
 }
 
 
-bool tryToPlacePlayerFirstShip(string position, string direction, int deck)
+bool tryToPlacePlayerFirstShip(string position, string direction, int deck) /// try to place a ship in position = position, direction = direction, size = deck)
 {
-    int y = position[1] - 'A' + 1;
+    int y = position[0] - 'A' + 1;
     int x;
-    if (position[5] == '0') x = 10;
-    else x = position[4] - '0';
+    if (position[2] == '0') x = 10;
+    else x = position[1] - '0';
     if (direction == "V")
     {
-        int remain = deck - 1 - (10 - x);
-        if (remain > 0)
+        int remain = deck - 1 - (10 - x); // squares needed more to place the ship from position to the down corner of the field
+        if (remain > 0) // needed more squares
         {
             for (int i = x - remain; i < x - remain + deck; i++)
             {
-                if (!checkPlayerFirstShipPoint(i,y)) return false;
+                if (!checkPlayerFirstShipPoint(i,y)) return false; // check the point to place a ship
             }
 
             for (int i = x - remain; i < x - remain + deck; i++)
@@ -180,7 +179,7 @@ bool tryToPlacePlayerFirstShip(string position, string direction, int deck)
             }
             return true;
         }
-        else
+        else // no more squares needed
         {
             for (int i = x; i < x + deck; i++)
             {
@@ -194,10 +193,10 @@ bool tryToPlacePlayerFirstShip(string position, string direction, int deck)
             return true;
         }
     }
-    else
+    else // if direction = H
     {
-        int remain = deck - 1 - (10 - y);
-        if (remain > 0)
+        int remain = deck - 1 - (10 - y); // squares needed more to place the ship from position to the right corner of the field
+        if (remain > 0) // needed more squares
         {
             for (int i = y - remain; i <= y - remain + deck; i++)
             {
@@ -210,7 +209,7 @@ bool tryToPlacePlayerFirstShip(string position, string direction, int deck)
             }
             return true;
         }
-        else
+        else // no more squares nedeed
         {
             for (int i = y; i < y + deck; i++)
             {
@@ -228,12 +227,12 @@ bool tryToPlacePlayerFirstShip(string position, string direction, int deck)
     }
 }
 
-bool tryToPlacePlayerSecondShip(string position, string direction, int deck)
+bool tryToPlacePlayerSecondShip(string position, string direction, int deck) /// the same as tryToPlacePlayerFirstShip, but for second player
 {
-    int y = position[1] - 'A' + 1;
+    int y = position[0] - 'A' + 1;
     int x;
-    if (position[5] == '0') x = 10;
-    else x = position[4] - '0';
+    if (position[2] == '0') x = 10;
+    else x = position[1] - '0';
     if (direction == "V")
     {
         int remain = deck - 1 - (10 - x);
@@ -290,7 +289,7 @@ bool tryToPlacePlayerSecondShip(string position, string direction, int deck)
             for (int i = y; i < y + deck; i++)
             {
                 secondPlayerMap[x][i] = '.';
-               /* cout << x << " " << i << endl;
+                /*cout << x << " " << i << endl;
                 Sleep(3000);*/
             }
             return true;
@@ -298,21 +297,20 @@ bool tryToPlacePlayerSecondShip(string position, string direction, int deck)
     }
 }
 
-void updateFields()
+void updateFields() /// updating information in fields using data from data maps)
 {
     for (int i = 1; i<= 10; i++)
     {
         for (int j = 1; j <= 10; j++)
         {
+            /// formula [i * 2][1 + j * 4] connects the field and the data map
             if (!firstPlayerShipsPlaced) firstPlayerField[i * 2][1 + j * 4] = firstPlayerMap[i][j];
-          //  cout << firstPlayerMap[i][j];
             if (!secondPlayerShipsPlaced) secondPlayerField[i * 2][1 + j * 4] = secondPlayerMap[i][j];
         }
-       // cout << endl;
     }
 }
 
-void removeDotsFromField()
+void removeDotsFromField() /// remove dots from field to reuse them in other way
 {
     for (int i = 0; i < 11; i++)
     {
@@ -325,7 +323,7 @@ void removeDotsFromField()
     updateFields();
 }
 
-void replaceDotsInFields()
+void replaceDotsInFields() /// reuse dots in other way
 {
     for (int i = 0; i < 11; i++)
     {
@@ -338,7 +336,7 @@ void replaceDotsInFields()
     updateFields();
 }
 
-void setPrintFirstPlayerShips()
+void setPrintFirstPlayerShips() /// placing ships for first player
 {
     cout << "\n\n\n";
 
@@ -356,15 +354,15 @@ void setPrintFirstPlayerShips()
                 if (direction != "V" && direction != "H")
                 {
                     cout << "\n[ERROR] Incorrect direction. Restarting entering information in 3 seconds...";
-                    Sleep(3000);
-                    system("cls");
+                    Sleep(3000); // wait for 3 seconds to read the printed information
+                    system("cls"); // clear console window
                     PrintFields();
                     setPrintFirstPlayerShips();
                     return;
                 }
             }
 
-            cout << "Choose the position of your ship [<letter><number>]: ";
+            cout << "Choose the position of your ship [LETTERnumber]: ";
             string position;
             cin >> position;
             if (!checkPosition(position))
@@ -394,7 +392,7 @@ void setPrintFirstPlayerShips()
             cout << firstPlayerCaption << endl;
             cout << "Place your " << i << "-deck ship. " << i << "-deck ships remained: " << j << endl;
             cout << "Choose the direction of your ship [V/H]: " << direction;
-            cout << "\nChoose the position of your ship [<letter><number>]: " << position;
+            cout << "\nChoose the position of your ship [LETTERnumber]: " << position;
             cout << "\nPosition selected! Accept position? (changes displayed on your field {.}) [Y/N]: ";
             string choice;
             cin >> choice;
@@ -434,7 +432,7 @@ void setPrintFirstPlayerShips()
     }
 }
 
-void setPrintSecondPlayerShips()
+void setPrintSecondPlayerShips() /// placing ships for second player
 {
     cout << "\n\n\n";
 
@@ -460,7 +458,7 @@ void setPrintSecondPlayerShips()
                 }
             }
 
-            cout << "Choose the position of your ship [<letter><number>]: ";
+            cout << "Choose the position of your ship [LETTERnumber]: ";
             string position;
             cin >> position;
             if (!checkPosition(position))
@@ -490,7 +488,7 @@ void setPrintSecondPlayerShips()
             cout << secondPlayerCaption << endl;
             cout << "Place your " << i << "-deck ship. " << i << "-deck ships remained: " << j << endl;
             cout << "Choose the direction of your ship [V/H]: " << direction;
-            cout << "\nChoose the position of your ship [<letter><number>]: " << position;
+            cout << "\nChoose the position of your ship [LETTERnumber]: " << position;
             cout << "\nPosition selected! Accept position? (changes displayed on your field {.}) [Y/N]: ";
             string choice;
             cin >> choice;
@@ -530,11 +528,11 @@ void setPrintSecondPlayerShips()
     }
 }
 
-void turnBattleModeFirstPlayer()
+void turnBattleModeFirstPlayer() /// clear the first player field before battle begins to not see opponent's ships
 {
     for (int i = 0; i < 21; i++)
     {
-        firstPlayerField[i] = firstPlayerBattleField[i];
+        firstPlayerField[i] = emptyField[i];
     }
     cout << "\n[WARNING] Now it's time to place the ships of second player. Get ready!";
     Sleep(3000);
@@ -542,11 +540,11 @@ void turnBattleModeFirstPlayer()
     PrintFields();
 }
 
-void turnBattleModeSecondPlayer()
+void turnBattleModeSecondPlayer() /// clear the second player field before battle begins to not see opponent's ships
 {
     for (int i = 0; i < 21; i++)
     {
-        secondPlayerField[i] = secondPlayerBattleField[i];
+        secondPlayerField[i] = emptyField[i];
     }
     cout << "\n[ATTENTION] Now the battle begins. Good luck & have fun!";
     Sleep(3000);
@@ -554,7 +552,7 @@ void turnBattleModeSecondPlayer()
     PrintFields();
 }
 
-bool checkFirstPlayerKilledShip(int x, int y)
+bool checkFirstPlayerKilledShip(int x, int y)  /// checking first player ship dead with a part in position x, y
 {
     /// Check ship is killed
     int i = x, j = y;
@@ -633,7 +631,7 @@ bool checkFirstPlayerKilledShip(int x, int y)
     return true;
 }
 
-bool checkSecondPlayerKilledShip(int x, int y)
+bool checkSecondPlayerKilledShip(int x, int y) /// the same as checkFirstPlayerKilledShip, but for second player
 {
     /// Check ship is killed
     int i = x, j = y;
@@ -713,39 +711,39 @@ bool checkSecondPlayerKilledShip(int x, int y)
 }
 
 
-bool secondPlayerHit(string position)
+bool secondPlayerHit(string position) /// second player trying to hit the ship in position = position
 {
-    int y = position[1] - 'A' + 1;
+    int y = position[0] - 'A' + 1;
     int x;
-    if (position[5] == '0') x = 10;
-    else x = position[4] - '0';
-    if (firstPlayerMap[x][y] == 'x')
+    if (position[2] == '0') x = 10;
+    else x = position[1] - '0';
+    if (firstPlayerMap[x][y] == 'x') // check the first player have ship in position x, y
     {
-        firstPlayerField[x * 2][1 + y * 4] = 'x';
+        firstPlayerField[x * 2][1 + y * 4] = 'x'; // mark ship as damaged
         firstPlayerMap[x][y] = 'X';
         cout << "\n[HITTED] Successful hit!";
-        if (checkFirstPlayerKilledShip(x, y))
+        if (checkFirstPlayerKilledShip(x, y)) // if ship is killed
         {
             cout << "\n[KILLED] You just killed enemy ship. Good job!";
-            firstPlayerShipsRemained--;
-            printAddDots();
+            firstPlayerShipsRemained--; // decrease the number of first player ships
+            printAddDots(); // add dots around dead ship
         }
         return true;
     }
 
-    if (firstPlayerMap[x][y] == 'X')
+    if (firstPlayerMap[x][y] == 'X') // if hit before
     {
         cout << "\n[ERROR] You hit this point before. Try another one.";
         return true;
     }
 
-    if (firstPlayerMap[x][y] == 'K')
+    if (firstPlayerMap[x][y] == 'K') // if killed ship
     {
         cout << "\n[ERROR] This ship is already killed. Try another one.";
         return true;
     }
 
-    if (firstPlayerMap[x][y] == ' ')
+    if (firstPlayerMap[x][y] == ' ') // if empty field
     {
         cout << "\n[MISS] Not today! Try again later.";
         firstPlayerMap[x][y] = '.';
@@ -753,14 +751,14 @@ bool secondPlayerHit(string position)
         return false;
     }
 
-    if (firstPlayerMap[x][y] == '.')
+    if (firstPlayerMap[x][y] == '.') // if missed here before
     {
         cout << "\n[ERROR] You missed here before. Try another position";
         return true;
     }
 }
 
-bool firstPlayerHit(string position)
+bool firstPlayerHit(string position) /// same as secondPlayerHit, but first player is hitting
 {
     int y = position[1] - 'A' + 1;
     int x;
@@ -807,13 +805,13 @@ bool firstPlayerHit(string position)
     }
 }
 
-void firstPlayerBattleMove()
+void firstPlayerBattleMove() /// first player battle move
 {
     system("cls");
     PrintFields();
     cout << "\n\n\n" << firstPlayerCaption << endl;
     string position;
-    cout << "\nChoose the position of your hit [<letter><number>]:";
+    cout << "\nChoose the position of your hit [LETTERnumber]:";
     cin >> position;
     if (!checkPosition(position))
     {
@@ -827,30 +825,30 @@ void firstPlayerBattleMove()
 
     if (firstPlayerHit(position))
     {
-        if (secondPlayerShipsRemained == 0)
+        if (secondPlayerShipsRemained == 0) // if zero ships remained after hit
         {
             cout << "[WIN] Congratulations! You just won this game!";
-            exit(0);
+            return;
         }
-        cout << "\n[ONE MORE MOVE FOR YOU]";
+        cout << "\n[ONE MORE MOVE FOR YOU]"; // if success hit one more turn for player
         Sleep(3000);
         firstPlayerBattleMove();
     }
     else
     {
-        cout << "\n[CHANGING PLAYER]";
+        cout << "\n[CHANGING PLAYER]"; // if missed change the player
         Sleep(3000);
     }
     return;
 }
 
-void secondPlayerBattleMove()
+void secondPlayerBattleMove() /// second player battle move
 {
     system("cls");
     PrintFields();
     cout << "\n\n\n" << secondPlayerCaption << endl;
     string position;
-    cout << "\nChoose the position of your hit [<letter><number>]:";
+    cout << "\nChoose the position of your hit [LETTERnumber]:";
     cin >> position;
     if (!checkPosition(position))
     {
@@ -882,44 +880,58 @@ void secondPlayerBattleMove()
 
 }
 
-void theBattle()
+int theBattle() /// THE BATTLE
 {
     firstPlayerBattleMove();
+    if (secondPlayerShipsRemained == 0) return 1;
     secondPlayerBattleMove();
-    if (firstPlayerShipsRemained == 0 || secondPlayerShipsRemained == 0) return;
+    if (firstPlayerShipsRemained == 0) return 2;
     theBattle();
+}
+
+void theGame()
+{
+    setSpacesSize(50);
+    setConsoleSize();
+    while (true)
+    {
+        fillField();
+        setFirstEmptyField();
+        setSecondEmptyField();
+        firstPlayerShipsPlaced = false;
+        secondPlayerShipsPlaced = false;
+        PrintFields();
+        numberOfShips[1] = 0;
+        numberOfShips[2] = 0;
+        numberOfShips[3] = 0;
+        numberOfShips[4] = 1;
+        setPrintFirstPlayerShips();
+        firstPlayerShipsPlaced = true;
+        turnBattleModeFirstPlayer();
+        numberOfShips[1] = 0;
+        numberOfShips[2] = 0;
+        numberOfShips[3] = 0;
+        numberOfShips[4] = 1;
+        setPrintSecondPlayerShips();
+        secondPlayerShipsPlaced = true;
+        turnBattleModeSecondPlayer();
+        int result = theBattle();
+        while (true)
+        {
+            cout << "\n[NEW GAME] Do you want to play one more time?[Y/N]";
+            string answer;
+            cin >> answer;
+            if (answer == "Y") break;
+            if (answer == "N") return;
+        }
+    }
 }
 
 
 
 int main()
 {
-    fillField();
-    setFirstEmptyField();
-    setSecondEmptyField();
-    setSpacesSize(50);
-    setConsoleSize();
-    PrintFields();
-    numberOfShips[1] = 0;
-    numberOfShips[2] = 0;
-    numberOfShips[3] = 0;
-    numberOfShips[4] = 1;
-    setPrintFirstPlayerShips();
-    firstPlayerShipsPlaced = true;
-    turnBattleModeFirstPlayer();
-    numberOfShips[1] = 0;
-    numberOfShips[2] = 0;
-    numberOfShips[3] = 0;
-    numberOfShips[4] = 1;
-    setPrintSecondPlayerShips();
-    secondPlayerShipsPlaced = true;
-    turnBattleModeSecondPlayer();
-
-    theBattle();
-
-
-
-
+    theGame();
 
     return 0;
 }
