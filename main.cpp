@@ -71,6 +71,46 @@ void setConsoleSize()
 	SetWindowPos(window_header, HWND_TOP, 200, 100, 1200, 650, NULL);
 }
 
+void printAddDots()
+{
+    for (int i = 1; i <= 10; i++)
+    {
+        for (int j = 1; j <= 10; j++)
+        {
+            if (firstPlayerMap[i][j] == 'K')
+            {
+                for (int l = i - 1; l <= i + 1; l++)
+                {
+                    for (int k = j - 1; k <= j + 1; k++)
+                    {
+                        if (firstPlayerMap[l][k] == ' ') firstPlayerMap[l][k] = '.';
+                    }
+                }
+            }
+
+            if (secondPlayerMap[i][j] == 'K')
+            {
+                for (int l = i - 1; l <= i + 1; l++)
+                {
+                    for (int k = j - 1; k <= j + 1; k++)
+                    {
+                        if (secondPlayerMap[l][k] == ' ') secondPlayerMap[l][k] = '.';
+                    }
+                }
+            }
+        }
+    }
+
+    for (int i = 1; i <= 10; i++)
+    {
+        for (int j = 1; j <= 10; j++)
+        {
+            if (firstPlayerMap[i][j] == '.') firstPlayerField[i * 2][1 + j * 4] = '.';
+            if (secondPlayerMap[i][j] == '.') secondPlayerField[i * 2][1 + j * 4] = '.';
+        }
+    }
+}
+
 void PrintFields()
 {
 	cout << firstPlayerCaption + aLotOfSpaces + secondPlayerCaption + "\n\n";
@@ -688,6 +728,7 @@ bool secondPlayerHit(string position)
         {
             cout << "\n[KILLED] You just killed enemy ship. Good job!";
             firstPlayerShipsRemained--;
+            printAddDots();
         }
         return true;
     }
@@ -734,6 +775,7 @@ bool firstPlayerHit(string position)
         {
             cout << "\n[KILLED] You just killed enemy ship. Good job!";
             secondPlayerShipsRemained--;
+            printAddDots();
         }
         return true;
     }
@@ -858,16 +900,16 @@ int main()
     setSpacesSize(50);
     setConsoleSize();
     PrintFields();
-    numberOfShips[1] = 4;
-    numberOfShips[2] = 3;
-    numberOfShips[3] = 2;
+    numberOfShips[1] = 0;
+    numberOfShips[2] = 0;
+    numberOfShips[3] = 0;
     numberOfShips[4] = 1;
     setPrintFirstPlayerShips();
     firstPlayerShipsPlaced = true;
     turnBattleModeFirstPlayer();
-    numberOfShips[1] = 4;
-    numberOfShips[2] = 3;
-    numberOfShips[3] = 2;
+    numberOfShips[1] = 0;
+    numberOfShips[2] = 0;
+    numberOfShips[3] = 0;
     numberOfShips[4] = 1;
     setPrintSecondPlayerShips();
     secondPlayerShipsPlaced = true;
